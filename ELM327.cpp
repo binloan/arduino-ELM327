@@ -21,6 +21,8 @@
 
 byte Elm327::begin(){
 	char data[20];
+	runCommand("AT Z", data, 20);
+	runCommand("01 00", data, 20);
 	runCommand("AT E0",data,20);
 	return runCommand("AT SP 0",data,20);
 }
