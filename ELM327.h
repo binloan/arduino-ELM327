@@ -27,12 +27,12 @@
 
 #ifndef ELM_BAUD_RATE
 	#warning "ELM_BAUD_RATE must be defined"
-	#define ELM_BAUD_RATE 9600
+	#define ELM_BAUD_RATE 38400
 #endif
 
 #ifndef ELM_PORT
 	#warning "ELM_PORT is not defined, using default value"
-	#define ELM_PORT Serial
+	#define ELM_PORT Serial1
 #endif
 
 #define ELM_SUCCESS 0
