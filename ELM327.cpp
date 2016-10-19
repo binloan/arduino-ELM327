@@ -574,13 +574,14 @@ byte Elm327::getBytes( const char *mode, const char *chkMode, const char *pid, b
 	char data[64];
 	byte status;
 	char hexVal[]="0x00";
-	char cmd[6];
+	char cmd[7];
 	cmd[0]=mode[0];
 	cmd[1]=mode[1];
 	cmd[2]=' ';
 	cmd[3]=pid[0];
 	cmd[4]=pid[1];
-	cmd[5]='\0';
+	cmd[5]='1';
+	cmd[6]='\0';
 
 	status=runCommand(cmd,data,64);
 	if ( status != ELM_SUCCESS )
