@@ -71,6 +71,18 @@ class Elm327
 		 * - Units: °C
 		 */
 		byte coolantTemperature(int &temp);
+		
+		/**
+		 * Gets the Oil Temperature.  Reads PID 05 from the OBD interface and sets
+		 * temp to the value returned after conversion.
+		 * @param[out]	temp	Signed integer value is set to the coolant temperature.
+		 * - Minimum: -40
+		 * - Maximum Value: 215
+		 * - Units: °C
+		 */
+		byte oilTemperature(int &temp);
+
+		byte transmissionGear(int &temp);
 
 
 		/**

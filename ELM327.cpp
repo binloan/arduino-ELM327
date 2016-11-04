@@ -49,6 +49,29 @@ byte Elm327::coolantTemperature(int &temp){
 	return ELM_SUCCESS;
 }
 
+byte Elm327::oilTemperature(int &temp){
+	byte status;
+	byte values[1];
+	status=getBytes("22","13","10",values,1);
+	if (status != ELM_SUCCESS){
+		return status;
+	}
+	temp=values[0];
+	return ELM_SUCCESS;
+}
+
+byte Elm327::transmissionGear(int &gear) {
+	byte status;
+	byte values[1];
+	status = getBytes("22", "11", "B3", values, 1);
+	if (status != ELM_SUCCESS) {
+		return status;
+	}
+	gear = values[0];
+	return ELM_SUCCESS;
+}
+
+
 byte Elm327::getFuelTrim(const char *pid, int &percent){
 	byte status;
 	byte values[1];
@@ -582,8 +605,9 @@ byte Elm327::getBytes( const char *mode, const char *chkMode, const char *pid, b
 	cmd[4]=pid[1];
 	cmd[5]='1';
 	cmd[6]='\0';
-
+	Serial.println("Running Command");
 	status=runCommand(cmd,data,64);
+	Serial.println("Command done.");
 	if ( status != ELM_SUCCESS )
 	{
 		return status;
@@ -632,7 +656,9 @@ byte Elm327::runCommand(const char *cmd, char *data, unsigned int dataLength)
 	found=false;
 	while (!found && counter<( dataLength ) && millis()<timeOut)
     {
+		Serial.print("Millis: ");Serial.println(millis());
         if ( ELM_PORT.available() ){
+			Serial.print("Bytes available: "); Serial.println(ELM_PORT.available());
 			data[counter]=ELM_PORT.read();
 			if (  data[counter] == '>' ){
 				found=true;
