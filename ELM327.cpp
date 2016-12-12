@@ -792,6 +792,30 @@ byte Elm327::getVoltage(float &voltage){
 	return status;
 }
 
+byte Elm327::driverDemandEngineTorque(byte &torque)
+{
+	byte status;
+	byte values[1];
+	status = getBytes("01", "41", "61", values, 1);
+	if (status != ELM_SUCCESS){
+		return status;
+	}
+	torque = values[0] - 125;
+	return ELM_SUCCESS;
+}
+
+byte Elm327::actualEngineTorque(byte &torque)
+{
+	byte status;
+	byte values[1];
+	status = getBytes("01", "41", "62", values, 1);
+	if (status != ELM_SUCCESS){
+		return status;
+	}
+	torque = values[0] - 125;
+	return ELM_SUCCESS;
+}
+
 
 void Elm327::flush(){
 	while (ELM_PORT.read() >= 0)

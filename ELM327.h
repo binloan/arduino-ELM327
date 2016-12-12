@@ -269,6 +269,8 @@ class Elm327
 		byte acceleratorPedalPositionE(byte &position);
 		byte acceleratorPedalPositionF(byte &position);
 		byte commandedThrottleActuator(byte &position);
+		byte driverDemandEngineTorque(byte &torque);
+		byte actualEngineTorque(byte &torque);
 	private:
 		byte o2WRVoltage(const char *sensor, unsigned int &equivRatio, unsigned int &voltage);
 		byte o2WRCurrent(const char *sensor, unsigned int &equivRatio, int &current);
