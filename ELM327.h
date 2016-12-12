@@ -53,7 +53,7 @@
 class Elm327
 {
 	public:
-
+		bool fastFailed = false;
 
 		byte begin();
 		byte getVersion(String &rev);
@@ -274,6 +274,7 @@ class Elm327
 		byte o2WRCurrent(const char *sensor, unsigned int &equivRatio, int &current);
 		byte catTemperature(const char *sensor, int &temperature);
 		byte getBytes( const char *mode, const char *chkMode, const char *pid, byte *values, unsigned int numValues);
+		byte getFastBytes( const char *mode, const char *chkMode, const char *pid, byte *values, unsigned int numValues);
 		byte runCommand(const char *cmd, char *data, unsigned int dataLength);
 		bool getBit(byte b, byte p);
 		byte getFuelTrim(const char *pid, int &percent);
