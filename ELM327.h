@@ -53,7 +53,7 @@
 class Elm327
 {
 	public:
-
+		bool fastFailed = false;
 
 		byte begin();
 		byte getVersion(String &rev);
@@ -71,6 +71,18 @@ class Elm327
 		 * - Units: °C
 		 */
 		byte coolantTemperature(int &temp);
+		
+		/**
+		 * Gets the Oil Temperature.  Reads PID 05 from the OBD interface and sets
+		 * temp to the value returned after conversion.
+		 * @param[out]	temp	Signed integer value is set to the coolant temperature.
+		 * - Minimum: -40
+		 * - Maximum Value: 215
+		 * - Units: °C
+		 */
+		byte oilTemperature(int &temp);
+
+		byte transmissionGear(int &temp);
 
 
 		/**
@@ -257,11 +269,14 @@ class Elm327
 		byte acceleratorPedalPositionE(byte &position);
 		byte acceleratorPedalPositionF(byte &position);
 		byte commandedThrottleActuator(byte &position);
+		byte driverDemandEngineTorque(byte &torque);
+		byte actualEngineTorque(byte &torque);
 	private:
 		byte o2WRVoltage(const char *sensor, unsigned int &equivRatio, unsigned int &voltage);
 		byte o2WRCurrent(const char *sensor, unsigned int &equivRatio, int &current);
 		byte catTemperature(const char *sensor, int &temperature);
 		byte getBytes( const char *mode, const char *chkMode, const char *pid, byte *values, unsigned int numValues);
+		byte getFastBytes( const char *mode, const char *chkMode, const char *pid, byte *values, unsigned int numValues);
 		byte runCommand(const char *cmd, char *data, unsigned int dataLength);
 		bool getBit(byte b, byte p);
 		byte getFuelTrim(const char *pid, int &percent);

@@ -30,7 +30,11 @@ byte Elm327::begin(){
 byte Elm327::engineLoad(byte &load){
 	byte status;
 	byte values[1];
-	status=getBytes("01","41","04",values,1);
+	if (fastFailed){
+		status=getBytes("01","41","04",values,1);
+	}else{
+		status=getFastBytes("01","41","04",values,1);
+	}
 	if (status != ELM_SUCCESS){
 		return status;
 	}
@@ -48,6 +52,33 @@ byte Elm327::coolantTemperature(int &temp){
 	temp=values[0]-40;
 	return ELM_SUCCESS;
 }
+
+byte Elm327::oilTemperature(int &temp){
+	byte status;
+	byte values[1];
+	if (fastFailed){
+		status=getBytes("22","13","10",values,1);
+	}else{
+		status=getFastBytes("22","13","10",values,1);
+	}
+	if (status != ELM_SUCCESS){
+		return status;
+	}
+	temp=values[0];
+	return ELM_SUCCESS;
+}
+
+byte Elm327::transmissionGear(int &gear) {
+	byte status;
+	byte values[1];
+	status = getBytes("22", "11", "B3", values, 1);
+	if (status != ELM_SUCCESS) {
+		return status;
+	}
+	gear = values[0];
+	return ELM_SUCCESS;
+}
+
 
 byte Elm327::getFuelTrim(const char *pid, int &percent){
 	byte status;
@@ -101,7 +132,11 @@ byte Elm327::intakeManifoldAbsolutePressure(byte &pressure){
 byte Elm327::engineRPM(int &rpm){
 	byte status;
 	byte values[2];
-	status=getBytes("01","41","0C",values,2);
+	if (fastFailed){
+		status=getBytes("01","41","0C",values,2);
+	}else{
+		status=getFastBytes("01","41","0C",values,2);
+	}
 	if (status != ELM_SUCCESS){
 		return status;
 	}
@@ -574,15 +609,14 @@ byte Elm327::getBytes( const char *mode, const char *chkMode, const char *pid, b
 	char data[64];
 	byte status;
 	char hexVal[]="0x00";
-	char cmd[7];
+	char cmd[6];
 	cmd[0]=mode[0];
 	cmd[1]=mode[1];
 	cmd[2]=' ';
 	cmd[3]=pid[0];
 	cmd[4]=pid[1];
-	cmd[5]='1';
-	cmd[6]='\0';
-
+	//cmd[5]='1';
+	cmd[5]='\0';
 	status=runCommand(cmd,data,64);
 	if ( status != ELM_SUCCESS )
 	{
@@ -594,6 +628,43 @@ byte Elm327::getBytes( const char *mode, const char *chkMode, const char *pid, b
 	  or data[1]!=chkMode[1]
 	  or data[3]!=pid[0]
 	  or data[4]!=pid[1] ){
+		return ELM_GARBAGE;
+	}
+	
+	// For each byte expected, package it up
+	int i=0;
+	for (int i=0; i<numValues; i++){
+		hexVal[2]=data[6+(3*i)];
+		hexVal[3]=data[7+(3*i)];
+		values[i]=strtol(hexVal,NULL,16);
+	}
+	return ELM_SUCCESS;
+}
+
+byte Elm327::getFastBytes( const char *mode, const char *chkMode, const char *pid, byte *values, unsigned int numValues){
+	char data[64];
+	byte status;
+	char hexVal[]="0x00";
+	char cmd[7];
+	cmd[0]=mode[0];
+	cmd[1]=mode[1];
+	cmd[2]=' ';
+	cmd[3]=pid[0];
+	cmd[4]=pid[1];
+	cmd[5]='1';
+	cmd[6]='\0';
+	status=runCommand(cmd,data,64);
+	if ( status != ELM_SUCCESS )
+	{
+		return status;
+	};
+	
+	// Check the mode returned was the one we sent
+	if ( data[0]!=chkMode[0] 
+	  or data[1]!=chkMode[1]
+	  or data[3]!=pid[0]
+	  or data[4]!=pid[1] ){
+		fastFailed = true;
 		return ELM_GARBAGE;
 	}
 	
@@ -719,6 +790,30 @@ byte Elm327::getVoltage(float &voltage){
 		voltage=atof(data);
 	}
 	return status;
+}
+
+byte Elm327::driverDemandEngineTorque(byte &torque)
+{
+	byte status;
+	byte values[1];
+	status = getBytes("01", "41", "61", values, 1);
+	if (status != ELM_SUCCESS){
+		return status;
+	}
+	torque = values[0] - 125;
+	return ELM_SUCCESS;
+}
+
+byte Elm327::actualEngineTorque(byte &torque)
+{
+	byte status;
+	byte values[1];
+	status = getBytes("01", "41", "62", values, 1);
+	if (status != ELM_SUCCESS){
+		return status;
+	}
+	torque = values[0] - 125;
+	return ELM_SUCCESS;
 }
 
 
